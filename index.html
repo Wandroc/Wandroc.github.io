@@ -250,6 +250,7 @@
 
         .copy-btn.copied {
             background: var(--success-color);
+            animation: pulse 0.5s;
         }
 
         .copy-btn.error {
@@ -296,6 +297,12 @@
             padding: 20px;
             color: #7f8c8d;
             font-size: 14px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
 
         @media (max-width: 768px) {
@@ -362,7 +369,7 @@
     <script>
         // 初始加载示例卡片
         window.addEventListener('DOMContentLoaded', () => {
-            const examples = ['青眼白龙', '时花', '真红眼黑龙', '时空龙'];
+            const examples = ['青眼白龙', '时花', '时空龙'];
             const randomExample = examples[Math.floor(Math.random() * examples.length)];
             document.getElementById('searchInput').value = randomExample;
             searchCards();
@@ -429,6 +436,7 @@
                                     </button>
                                     <img class="card-image" 
                                          src="https://cdn.233.momobako.com/ygopro/pics/${card.id}.jpg"
+                                         crossOrigin="Anonymous"
                                          alt="${card.cn_name}"
                                          loading="lazy"
                                          onclick="showLargeImage(${card.id})">
@@ -455,27 +463,16 @@
             }
         }
 
-        // 使用Canvas解决CORS问题
-        function getImageDataURL(img) {
-            return new Promise((resolve, reject) => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                
-                // 设置Canvas尺寸与图片相同
-                canvas.width = img.naturalWidth;
-                canvas.height = img.naturalHeight;
-                
-                // 绘制图片到Canvas
-                ctx.drawImage(img, 0, 0);
-                
-                try {
-                    // 尝试获取数据URL
-                    const dataURL = canvas.toDataURL('image/jpeg', 0.9);
-                    resolve(dataURL);
-                } catch (e) {
-                    reject(e);
-                }
-            });
+        // 使用代理服务获取图片
+        function getImageViaProxy(imgUrl) {
+            // 使用CORS代理服务
+            const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(imgUrl)}`;
+            return fetch(proxyUrl)
+                .then(response => response.blob())
+                .catch(error => {
+                    console.error('代理获取图片失败:', error);
+                    throw error;
+                });
         }
 
         // 处理卡片图片复制
@@ -485,22 +482,13 @@
             const button = event.currentTarget;
             const cardId = button.dataset.cardId;
             const cardName = button.dataset.cardName;
-            const imgElement = button.nextElementSibling;
+            const imgUrl = `https://cdn.233.momobako.com/ygopro/pics/${cardId}.jpg`;
             
             try {
-                // 确保图片已加载
-                if (!imgElement.complete || imgElement.naturalHeight === 0) {
-                    await new Promise((resolve) => {
-                        imgElement.onload = resolve;
-                        imgElement.onerror = resolve;
-                    });
-                }
-                
-                // 使用Canvas获取图片数据
-                const dataURL = await getImageDataURL(imgElement);
+                // 使用代理服务获取图片
+                const blob = await getImageViaProxy(imgUrl);
                 
                 // 将图片复制到剪贴板
-                const blob = await fetch(dataURL).then(res => res.blob());
                 const clipboardItem = new ClipboardItem({
                     "image/png": blob
                 });
@@ -514,7 +502,7 @@
                 updateButtonState(button, 'copied');
             } catch (error) {
                 console.error('复制图片失败:', error);
-                showNotification('图片复制失败', true);
+                showNotification('图片复制失败，请重试', true);
                 updateButtonState(button, 'error');
             }
         }
@@ -545,11 +533,11 @@
             
             if (state === 'copied') {
                 const path = document.createElementNS(svgNS, "path");
-                path.setAttribute("d", "M20 6L9 17l-5-5");
+                path.setAttribute("d", "M5 13l4 4L19 7");
                 newSvg.appendChild(path);
             } else {
                 const path1 = document.createElementNS(svgNS, "path");
-                path1.setAttribute("d", "M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z");
+                path1.setAttribute("d", "M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z");
                 newSvg.appendChild(path1);
             }
             
