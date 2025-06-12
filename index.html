@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>游戏王查卡器 - 增强版</title>
+    <title>游戏王查卡器</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎴</text></svg>">
     <style>
         :root {
@@ -385,12 +385,7 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>游戏王卡片数据库</h1>
-            <p class="subtitle">搜索、查看并复制游戏王卡片图片</p>
-        </header>
-        
+    <div class="container">     
         <div class="search-box">
             <input type="text" id="searchInput" placeholder="请输入卡名或效果关键词（例如：青眼白龙、黑魔导）" autocomplete="off">
             <button class="search-btn" onclick="searchCards()">
@@ -403,7 +398,7 @@
         </div>
         
         <div class="protocol-warning" id="protocol-warning">
-            <strong>注意：</strong>图片复制功能需要在安全上下文（HTTPS 或 localhost）中运行。当前协议：<span id="protocol-info">检测中...</span>
+            <strong>注意：</strong>图片复制需在HTTPS 或 localhost中运行。当前协议：<span id="protocol-info">检测中...</span>
         </div>
         
         <div id="results" class="cards-grid"></div>
