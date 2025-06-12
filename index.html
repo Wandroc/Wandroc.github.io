@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图片与URL同时复制功能</title>
+    <title>图片与URL复制功能</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -110,12 +110,18 @@
             align-items: center;
             justify-content: center;
             background: #111;
+            position: relative;
         }
         
         .card-image img {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
+            transition: opacity 0.3s;
+        }
+        
+        .card-image img.loading {
+            opacity: 0.5;
         }
         
         .card-info {
@@ -302,6 +308,24 @@
             text-align: center;
         }
         
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #4facfe;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+        
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
         @media (max-width: 768px) {
             h1 {
                 font-size: 2rem;
@@ -326,8 +350,8 @@
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-copy"></i> 图片与URL同时复制到剪贴板</h1>
-            <p class="subtitle">一键复制图片及其URL地址</p>
+            <h1><i class="fas fa-copy"></i> 图片与URL复制功能</h1>
+            <p class="subtitle">修复版 - 可同时复制图片和URL地址</p>
         </header>
         
         <div class="protocol-warning" id="protocol-warning">
@@ -345,9 +369,10 @@
                 <div class="card">
                     <div class="card-image">
                         <img id="cardImage" src="https://cdn.233.momobako.com/ygopro/pics/6983839.jpg" alt="游戏王卡片">
+                        <div class="loading-spinner" id="loadingSpinner"></div>
                     </div>
                     <div class="card-info">
-                        <h3>卡片 #6983839</h3>
+                        <h3>卡片 #<span id="cardIdDisplay">6983839</span></h3>
                         <p>点击下方按钮复制图片和URL</p>
                     </div>
                 </div>
@@ -415,6 +440,8 @@
             const protocolInfo = document.getElementById('protocol-info');
             const protocolWarning = document.getElementById('protocol-warning');
             const urlDisplay = document.getElementById('urlDisplay');
+            const cardIdDisplay = document.getElementById('cardIdDisplay');
+            const loadingSpinner = document.getElementById('loadingSpinner');
             
             // 显示当前协议信息
             const currentProtocol = window.location.protocol;
@@ -432,6 +459,7 @@
             function updateUrlDisplay(cardId) {
                 const url = `https://cdn.233.momobako.com/ygopro/pics/${cardId}.jpg`;
                 urlDisplay.textContent = url;
+                cardIdDisplay.textContent = cardId;
                 return url;
             }
             
@@ -443,6 +471,10 @@
                 status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在加载图片...';
                 status.className = 'status';
                 
+                // 显示加载动画
+                loadingSpinner.style.display = 'block';
+                cardImage.classList.add('loading');
+                
                 // 创建临时图片测试URL是否有效
                 const tempImg = new Image();
                 tempImg.crossOrigin = 'Anonymous';
@@ -451,11 +483,15 @@
                 tempImg.onload = () => {
                     cardImage.src = imageUrl;
                     status.innerHTML = '<i class="fas fa-check-circle"></i> 图片加载成功！点击复制按钮复制图片和URL';
+                    loadingSpinner.style.display = 'none';
+                    cardImage.classList.remove('loading');
                 };
                 
                 tempImg.onerror = () => {
                     status.innerHTML = '<i class="fas fa-exclamation-circle"></i> 图片加载失败，请检查卡片ID';
                     status.className = 'status error';
+                    loadingSpinner.style.display = 'none';
+                    cardImage.classList.remove('loading');
                 };
             }
             
@@ -465,10 +501,9 @@
                 status.className = 'status';
                 
                 const imageUrl = cardImage.src;
-                let imageCopied = false;
                 
                 try {
-                    // 1. 尝试复制图片
+                    // 1. 创建Image对象并加载图片
                     const img = new Image();
                     img.crossOrigin = 'Anonymous';
                     img.src = imageUrl;
@@ -488,38 +523,31 @@
                     
                     // 3. 将Canvas转换为Blob
                     const blob = await new Promise(resolve => {
-                        canvas.toBlob(blob => resolve(blob), 'image/png';
+                        canvas.toBlob(blob => resolve(blob), 'image/png');
                     });
                     
-                    // 4. 复制图片到剪贴板
-                    await navigator.clipboard.write([
-                        new ClipboardItem({ 'image/png': blob })
-                    ]);
+                    // 4. 创建ClipboardItem
+                    const clipboardItem = new ClipboardItem({
+                        'image/png': blob,
+                        'text/plain': new Blob([imageUrl], { type: 'text/plain' })
+                    });
                     
-                    imageCopied = true;
+                    // 5. 复制到剪贴板
+                    await navigator.clipboard.write([clipboardItem]);
+                    
+                    status.innerHTML = '<i class="fas fa-check-circle"></i> 图片和URL已成功复制到剪贴板！';
+                    status.className = 'status success';
                 } catch (error) {
-                    console.log('图片复制失败，将仅复制URL文本:', error);
-                    imageCopied = false;
-                }
-                
-                try {
-                    // 5. 复制URL文本到剪贴板
-                    await navigator.clipboard.writeText(imageUrl);
+                    console.error('复制失败:', error);
                     
-                    if (imageCopied) {
-                        status.innerHTML = '<i class="fas fa-check-circle"></i> 图片和URL已成功复制到剪贴板！';
-                        status.className = 'status success';
-                    } else {
+                    // 尝试只复制URL文本作为备选方案
+                    try {
+                        await navigator.clipboard.writeText(imageUrl);
                         status.innerHTML = '<i class="fas fa-check-circle"></i> URL已复制到剪贴板！图片复制失败，已启用降级方案';
                         status.className = 'status warning';
-                    }
-                } catch (error) {
-                    console.error('URL复制失败:', error);
-                    if (imageCopied) {
-                        status.innerHTML = '<i class="fas fa-check-circle"></i> 图片已复制！但URL复制失败: ' + error.message;
-                        status.className = 'status warning';
-                    } else {
-                        status.innerHTML = '<i class="fas fa-exclamation-circle"></i> 复制失败: ' + error.message;
+                    } catch (textError) {
+                        console.error('URL复制失败:', textError);
+                        status.innerHTML = `<i class="fas fa-exclamation-circle"></i> 复制失败: ${error.message || '未知错误'}`;
                         status.className = 'status error';
                     }
                 }
