@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图片复制到剪贴板解决方案</title>
+    <title>图片与URL同时复制功能</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -26,7 +26,7 @@
         
         .container {
             width: 100%;
-            max-width: 1000px;
+            max-width: 900px;
             background: rgba(10, 15, 40, 0.85);
             border-radius: 20px;
             padding: 30px;
@@ -43,7 +43,7 @@
         }
         
         h1 {
-            font-size: 2.8rem;
+            font-size: 2.5rem;
             margin-bottom: 15px;
             background: linear-gradient(to right, #4facfe, #00f2fe);
             -webkit-background-clip: text;
@@ -60,20 +60,14 @@
         
         .content {
             display: flex;
+            flex-direction: column;
             gap: 30px;
-            margin: 30px 0;
         }
         
-        .image-section {
-            flex: 1;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-        }
-        
-        .solution-section {
-            flex: 1;
+        .card-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             background: rgba(0, 0, 0, 0.3);
             border-radius: 15px;
             padding: 25px;
@@ -87,17 +81,11 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            justify-content: center;
         }
         
         .section-title i {
             font-size: 1.5rem;
-        }
-        
-        .card-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
         }
         
         .card {
@@ -105,8 +93,10 @@
             border-radius: 15px;
             overflow: hidden;
             width: 100%;
+            max-width: 400px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
             transition: transform 0.3s ease;
+            margin-bottom: 20px;
         }
         
         .card:hover {
@@ -144,6 +134,7 @@
             align-items: center;
             gap: 15px;
             margin-top: 20px;
+            width: 100%;
         }
         
         .card-selector {
@@ -151,19 +142,22 @@
             gap: 10px;
             align-items: center;
             width: 100%;
+            max-width: 400px;
             justify-content: center;
+            margin-bottom: 15px;
         }
         
         .card-selector label {
             font-weight: bold;
             color: #a0d2ff;
+            min-width: 80px;
         }
         
         .card-selector input {
             padding: 12px 15px;
             border: 2px solid #4facfe;
             border-radius: 30px;
-            width: 150px;
+            flex: 1;
             background: rgba(0, 0, 0, 0.5);
             color: white;
             text-align: center;
@@ -176,6 +170,7 @@
             margin-top: 10px;
             flex-wrap: wrap;
             justify-content: center;
+            width: 100%;
         }
         
         button {
@@ -205,12 +200,8 @@
             transform: translateY(1px);
         }
         
-        .alt-btn {
-            background: linear-gradient(45deg, #ff9966, #ff5e62);
-        }
-        
-        .alt-btn i {
-            color: #ffcc00;
+        .copy-btn {
+            background: linear-gradient(45deg, #9d50bb, #6e48aa);
         }
         
         .status {
@@ -226,6 +217,7 @@
             background: rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
             width: 100%;
+            max-width: 600px;
         }
         
         .status.success {
@@ -246,51 +238,25 @@
             border: 1px solid rgba(255, 193, 7, 0.5);
         }
         
-        .solution-list {
-            margin: 25px 0;
-        }
-        
-        .solution-item {
-            background: rgba(79, 172, 254, 0.1);
+        .url-display {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.5);
             border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-left: 4px solid #4facfe;
+            padding: 15px;
+            word-break: break-all;
+            font-size: 0.9rem;
+            border: 1px solid #4facfe;
         }
         
-        .solution-item h3 {
-            color: #00f2fe;
-            margin-bottom: 10px;
+        .protocol-info {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 10px;
-        }
-        
-        .solution-item p {
-            margin-bottom: 15px;
-        }
-        
-        .code-block {
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 8px;
-            padding: 15px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            margin: 10px 0;
-            overflow-x: auto;
-        }
-        
-        .security-info {
-            background: rgba(255, 193, 7, 0.1);
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 20px;
-            border: 1px solid rgba(255, 193, 7, 0.3);
-        }
-        
-        .security-info h3 {
-            color: #ffcc00;
-            margin-bottom: 10px;
+            margin-top: 15px;
+            font-size: 1.1rem;
         }
         
         .protocol-warning {
@@ -301,15 +267,58 @@
             background: rgba(220, 53, 69, 0.2);
             border-radius: 10px;
             margin: 20px 0;
+            width: 100%;
+            max-width: 600px;
         }
         
-        @media (max-width: 900px) {
-            .content {
-                flex-direction: column;
-            }
-            
+        .instructions {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            font-size: 0.95rem;
+        }
+        
+        .instructions h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            margin: 15px 0;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
+        .note {
+            color: #ff9966;
+            font-weight: bold;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
             h1 {
                 font-size: 2rem;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+            
+            .buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 100%;
+                max-width: 350px;
             }
         }
     </style>
@@ -317,9 +326,8 @@
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-clipboard"></i> 图片复制到剪贴板解决方案</h1>
-            <p class="subtitle">解决安全上下文(HTTPS/localhost)问题</p>
-            <p>当前协议: <strong id="protocol-info">检测中...</strong></p>
+            <h1><i class="fas fa-copy"></i> 图片与URL同时复制到剪贴板</h1>
+            <p class="subtitle">一键复制图片及其URL地址</p>
         </header>
         
         <div class="protocol-warning" id="protocol-warning">
@@ -331,18 +339,16 @@
         </div>
         
         <div class="content">
-            <div class="image-section">
-                <h2 class="section-title"><i class="fas fa-image"></i> 图片展示与复制</h2>
+            <div class="card-container">
+                <h2 class="section-title"><i class="fas fa-image"></i> 图片展示</h2>
                 
-                <div class="card-container">
-                    <div class="card">
-                        <div class="card-image">
-                            <img id="cardImage" src="https://cdn.233.momobako.com/ygopro/pics/6983839.jpg" alt="游戏王卡片">
-                        </div>
-                        <div class="card-info">
-                            <h3>卡片 #6983839</h3>
-                            <p>使用高级方法复制图片</p>
-                        </div>
+                <div class="card">
+                    <div class="card-image">
+                        <img id="cardImage" src="https://cdn.233.momobako.com/ygopro/pics/6983839.jpg" alt="游戏王卡片">
+                    </div>
+                    <div class="card-info">
+                        <h3>卡片 #6983839</h3>
+                        <p>点击下方按钮复制图片和URL</p>
                     </div>
                 </div>
                 
@@ -352,81 +358,49 @@
                         <input type="number" id="cardId" min="1000000" max="9999999" value="6983839">
                     </div>
                     
-                    <div class="buttons">
-                        <button id="loadBtn">
-                            <i class="fas fa-sync-alt"></i> 加载卡片
-                        </button>
-                        
-                        <button id="copyBtn">
-                            <i class="far fa-copy"></i> 复制图片到剪贴板
-                        </button>
-                        
-                        <button id="copyUrlBtn" class="alt-btn">
-                            <i class="fas fa-link"></i> 复制图片URL (备选)
-                        </button>
+                    <button id="loadBtn">
+                        <i class="fas fa-sync-alt"></i> 加载卡片
+                    </button>
+                    
+                    <div class="url-display" id="urlDisplay">
+                        https://cdn.233.momobako.com/ygopro/pics/6983839.jpg
                     </div>
                     
+                    <button id="copyBtn" class="copy-btn">
+                        <i class="fas fa-copy"></i> 复制图片和URL到剪贴板
+                    </button>
+                    
                     <div id="status" class="status">
-                        <i class="fas fa-info-circle"></i> 点击上方按钮复制图片
+                        <i class="fas fa-info-circle"></i> 点击按钮复制图片和URL地址
+                    </div>
+                    
+                    <div class="protocol-info">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>当前协议: <strong id="protocol-info">检测中...</strong></span>
                     </div>
                 </div>
             </div>
             
-            <div class="solution-section">
-                <h2 class="section-title"><i class="fas fa-lightbulb"></i> 解决方案</h2>
+            <div class="instructions">
+                <h3><i class="fas fa-lightbulb"></i> 功能说明</h3>
+                <p>此功能实现了同时复制图片和URL文本到剪贴板：</p>
+                <ul>
+                    <li><strong>图片复制</strong>：使用Canvas转换和Clipboard API将图片复制到剪贴板</li>
+                    <li><strong>URL复制</strong>：将图片URL作为纯文本复制到剪贴板</li>
+                    <li><strong>智能降级</strong>：当无法复制图片时，自动降级为仅复制URL文本</li>
+                    <li><strong>安全处理</strong>：检测当前环境是否支持图片复制功能</li>
+                </ul>
                 
-                <div class="solution-list">
-                    <div class="solution-item">
-                        <h3><i class="fas fa-lock"></i> 方案1: 使用HTTPS环境</h3>
-                        <p>Clipboard API 需要安全上下文(HTTPS)才能正常工作：</p>
-                        <div class="code-block">if (window.location.protocol !== 'https:') {
-    // 重定向到HTTPS或显示警告
-}</div>
-                        <p>您可以通过以下方式获得HTTPS环境：</p>
-                        <ul>
-                            <li>部署到支持HTTPS的服务器</li>
-                            <li>使用GitHub Pages、Netlify、Vercel等免费托管</li>
-                            <li>本地开发使用localhost</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="solution-item">
-                        <h3><i class="fas fa-code"></i> 方案2: 备选复制方法</h3>
-                        <p>当Clipboard API不可用时，提供备选方案：</p>
-                        <div class="code-block">// 复制图片URL作为备选
-function copyImageUrl() {
-    const url = imageElement.src;
-    navigator.clipboard.writeText(url)
-        .then(() => console.log('URL已复制'))
-        .catch(err => console.error('复制失败', err));
-}</div>
-                        <p>用户可以将URL粘贴到地址栏直接访问图片</p>
-                    </div>
-                    
-                    <div class="solution-item">
-                        <h3><i class="fas fa-exclamation-triangle"></i> 方案3: 错误处理与用户引导</h3>
-                        <p>提供清晰的错误信息和操作指引：</p>
-                        <div class="code-block">try {
-    // 尝试使用Clipboard API
-} catch (error) {
-    showError('需要HTTPS环境: ' + error.message);
-    // 启用备选方案按钮
-}</div>
-                        <p>在界面上明确提示用户当前环境限制和解决方案</p>
-                    </div>
-                </div>
+                <h3 style="margin-top: 20px;"><i class="fas fa-exclamation-triangle"></i> 使用说明</h3>
+                <ul>
+                    <li>在卡片ID输入框中输入有效的卡片ID（如6983839）</li>
+                    <li>点击"加载卡片"按钮查看图片</li>
+                    <li>点击"复制图片和URL到剪贴板"按钮</li>
+                    <li>在图片编辑软件（如画图、Photoshop）中粘贴图片</li>
+                    <li>在文本编辑器（如记事本、Word）中粘贴URL地址</li>
+                </ul>
                 
-                <div class="security-info">
-                    <h3><i class="fas fa-shield-alt"></i> 安全上下文要求</h3>
-                    <p>现代浏览器出于安全考虑，限制剪贴板访问权限：</p>
-                    <ul>
-                        <li>页面必须通过HTTPS提供服务</li>
-                        <li>或使用http://localhost (本地开发环境)</li>
-                        <li>或使用http://127.0.0.1</li>
-                        <li>用户必须与页面交互(点击按钮等)</li>
-                    </ul>
-                    <p>此限制无法绕过，但可以提供友好的备选方案。</p>
-                </div>
+                <p class="note">注意：图片复制功能需要在安全上下文（HTTPS或localhost）中运行</p>
             </div>
         </div>
     </div>
@@ -437,10 +411,10 @@ function copyImageUrl() {
             const cardIdInput = document.getElementById('cardId');
             const loadBtn = document.getElementById('loadBtn');
             const copyBtn = document.getElementById('copyBtn');
-            const copyUrlBtn = document.getElementById('copyUrlBtn');
             const status = document.getElementById('status');
             const protocolInfo = document.getElementById('protocol-info');
             const protocolWarning = document.getElementById('protocol-warning');
+            const urlDisplay = document.getElementById('urlDisplay');
             
             // 显示当前协议信息
             const currentProtocol = window.location.protocol;
@@ -454,10 +428,17 @@ function copyImageUrl() {
                 protocolWarning.style.display = 'none';
             }
             
+            // 更新URL显示
+            function updateUrlDisplay(cardId) {
+                const url = `https://cdn.233.momobako.com/ygopro/pics/${cardId}.jpg`;
+                urlDisplay.textContent = url;
+                return url;
+            }
+            
             // 加载卡片图片
             function loadCardImage() {
                 const cardId = cardIdInput.value || '6983839';
-                const imageUrl = `https://cdn.233.momobako.com/ygopro/pics/${cardId}.jpg`;
+                const imageUrl = updateUrlDisplay(cardId);
                 
                 status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在加载图片...';
                 status.className = 'status';
@@ -469,7 +450,7 @@ function copyImageUrl() {
                 
                 tempImg.onload = () => {
                     cardImage.src = imageUrl;
-                    status.innerHTML = '<i class="fas fa-check-circle"></i> 图片加载成功！点击复制按钮复制图片到剪贴板';
+                    status.innerHTML = '<i class="fas fa-check-circle"></i> 图片加载成功！点击复制按钮复制图片和URL';
                 };
                 
                 tempImg.onerror = () => {
@@ -478,16 +459,19 @@ function copyImageUrl() {
                 };
             }
             
-            // 复制图片到剪贴板
-            async function copyImageToClipboard() {
-                status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在处理图片...';
+            // 复制图片和URL到剪贴板
+            async function copyImageAndUrl() {
+                status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在复制图片和URL...';
                 status.className = 'status';
                 
+                const imageUrl = cardImage.src;
+                let imageCopied = false;
+                
                 try {
-                    // 1. 创建Image对象并加载图片
+                    // 1. 尝试复制图片
                     const img = new Image();
                     img.crossOrigin = 'Anonymous';
-                    img.src = cardImage.src;
+                    img.src = imageUrl;
                     
                     // 等待图片加载完成
                     await new Promise((resolve, reject) => {
@@ -504,45 +488,50 @@ function copyImageUrl() {
                     
                     // 3. 将Canvas转换为Blob
                     const blob = await new Promise(resolve => {
-                        canvas.toBlob(blob => resolve(blob), 'image/png');
+                        canvas.toBlob(blob => resolve(blob), 'image/png';
                     });
                     
-                    // 4. 复制到剪贴板
+                    // 4. 复制图片到剪贴板
                     await navigator.clipboard.write([
                         new ClipboardItem({ 'image/png': blob })
                     ]);
                     
-                    status.innerHTML = '<i class="fas fa-check-circle"></i> 图片已成功复制到剪贴板！可以粘贴到任何支持图片的应用中';
-                    status.className = 'status success';
+                    imageCopied = true;
                 } catch (error) {
-                    console.error('复制失败:', error);
+                    console.log('图片复制失败，将仅复制URL文本:', error);
+                    imageCopied = false;
+                }
+                
+                try {
+                    // 5. 复制URL文本到剪贴板
+                    await navigator.clipboard.writeText(imageUrl);
                     
-                    if (error.message.includes('secure context')) {
-                        status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 复制失败: 需要HTTPS或localhost环境。已启用备选方案。';
+                    if (imageCopied) {
+                        status.innerHTML = '<i class="fas fa-check-circle"></i> 图片和URL已成功复制到剪贴板！';
+                        status.className = 'status success';
+                    } else {
+                        status.innerHTML = '<i class="fas fa-check-circle"></i> URL已复制到剪贴板！图片复制失败，已启用降级方案';
+                        status.className = 'status warning';
+                    }
+                } catch (error) {
+                    console.error('URL复制失败:', error);
+                    if (imageCopied) {
+                        status.innerHTML = '<i class="fas fa-check-circle"></i> 图片已复制！但URL复制失败: ' + error.message;
                         status.className = 'status warning';
                     } else {
-                        status.innerHTML = `<i class="fas fa-exclamation-circle"></i> 复制失败: ${error.message || '未知错误'}`;
+                        status.innerHTML = '<i class="fas fa-exclamation-circle"></i> 复制失败: ' + error.message;
                         status.className = 'status error';
                     }
                 }
             }
             
-            // 复制图片URL作为备选方案
-            async function copyImageUrl() {
-                try {
-                    await navigator.clipboard.writeText(cardImage.src);
-                    status.innerHTML = '<i class="fas fa-check-circle"></i> 图片URL已复制到剪贴板！您可以粘贴到浏览器地址栏访问';
-                    status.className = 'status success';
-                } catch (err) {
-                    status.innerHTML = `<i class="fas fa-exclamation-circle"></i> URL复制失败: ${err.message}`;
-                    status.className = 'status error';
-                }
-            }
-            
             // 事件监听
             loadBtn.addEventListener('click', loadCardImage);
-            copyBtn.addEventListener('click', copyImageToClipboard);
-            copyUrlBtn.addEventListener('click', copyImageUrl);
+            copyBtn.addEventListener('click', copyImageAndUrl);
+            cardIdInput.addEventListener('input', () => {
+                const cardId = cardIdInput.value || '6983839';
+                updateUrlDisplay(cardId);
+            });
             
             // 初始加载
             loadCardImage();
