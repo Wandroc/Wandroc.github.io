@@ -349,7 +349,7 @@
         
         <div class="protocol-info">
             当前协议: <span id="protocol-info">检测中...</span> | 
-            图片复制功能需安全HTTPS或localhost环境
+            图片功能需安全HTTPS或localhost环境
         </div>
         
         <div id="results" class="cards-grid"></div>
@@ -464,13 +464,13 @@
             const button = event.currentTarget;
             const cardId = button.dataset.cardId;
             const cardName = button.dataset.cardName;
-            const imgUrl = `https://cdn.233.momobako.com/ygopro/pics/${cardId}.jpg`;
+            const cardDesc = button.dataset.cardDesc;
             
             try {
                 // 1. 创建Image对象并加载图片
                 const img = new Image();
                 img.crossOrigin = "Anonymous"; // 设置跨域属性
-                img.src = imgUrl + '?t=' + new Date().getTime(); // 添加时间戳避免缓存问题
+                img.src = cardDesc + '?t=' + new Date().getTime(); //添加时间戳避免缓存问题
                 
                 // 等待图片加载完成
                 await new Promise((resolve, reject) => {
@@ -493,7 +493,7 @@
                 // 4. 创建ClipboardItem
                 const clipboardItem = new ClipboardItem({
                     'image/png': blob,
-                    'text/plain': new Blob([imgUrl], { type: 'text/plain' })
+                    'text/plain': new Blob([cardDesc], { type: 'text/plain' })
                 });
                 
                 // 5. 复制到剪贴板
@@ -502,12 +502,13 @@
                 // 显示复制成功提示
                 showNotification(`"${cardName}"图片和URL已复制！`, false);
                 updateButtonState(button, 'copied');
-            } catch (error) {
+            } 
+			catch (error) {
                 console.error('复制失败:', error);
                 
                 // 尝试只复制URL文本作为备选方案
                 try {
-                    await navigator.clipboard.writeText(imgUrl);
+                    await navigator.clipboard.writeText(cardDesc);
                     showNotification(`"${cardName}"URL已复制！图片复制失败，已启用备选方案`, 'warning');
                     updateButtonState(button, 'copied');
                 } catch (textError) {
