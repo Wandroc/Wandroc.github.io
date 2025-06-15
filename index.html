@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>游戏王卡组</title>
+    <title>游戏王卡组构建器</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -119,7 +119,7 @@
             background: white;
             display: flex;
             flex-direction: column;
-            height: calc(100% - 60px);
+            height: 100%;
         }
         
         .results-container {
@@ -892,7 +892,7 @@
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-dragon"></i> </h1>
+            <h1><i class="fas fa-dragon"></i> 游戏王卡组构建器</h1>
         </header>
         
         <div class="app-container">
@@ -1364,10 +1364,12 @@
             mainCountEl.textContent = mainCount;
             extraCountEl.textContent = extraCount;
             
-            // 根据主卡组数量调整布局
-            if (mainCount <= 20) {
+            // 根据主卡组卡种数量调整布局
+            const uniqueMainCount = deck.main.length; // 不同卡种的数量
+            
+            if (uniqueMainCount <= 20) {
                 mainDeckEl.className = "deck-grid main-deck-grid";
-            } else if (mainCount <= 25) {
+            } else if (uniqueMainCount <= 25) {
                 mainDeckEl.className = "deck-grid main-deck-grid medium";
             } else {
                 mainDeckEl.className = "deck-grid main-deck-grid large";
@@ -1382,7 +1384,7 @@
                 });
             }
             
-            // 显示额外卡组 - 移除滚动条
+            // 显示额外卡组
             if (deck.extra.length === 0) {
                 extraDeckEl.innerHTML = '<div class="card-placeholder">添加额外卡组卡片 (最多8张)</div>';
             } else {
@@ -1952,9 +1954,7 @@
             adjustResultsContainerHeight();
             
             // 添加一些示例卡片
-            setTimeout(() => {
-                showNotification('欢迎使用游戏王卡组构建器！');
-            }, 1000);
+            /* 不再显示欢迎通知 */
         });
         
         window.addEventListener('resize', adjustResultsContainerHeight);
