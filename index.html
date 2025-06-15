@@ -33,22 +33,6 @@
             height: calc(100vh - 40px);
         }
         
-        header {
-            text-align: center;
-            padding: 15px 0;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #4da6ff;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-        }
-        
-        h1 {
-            font-size: 2.2rem;
-            color: #2c5282;
-            margin-bottom: 5px;
-        }
-        
         .app-container {
             display: grid;
             grid-template-columns: 1.2fr 1.8fr;
@@ -119,7 +103,7 @@
             background: white;
             display: flex;
             flex-direction: column;
-            height: 100%;
+            height: calc(100% - 60px);
         }
         
         .results-container {
@@ -183,12 +167,28 @@
             color: #4a5568;
             margin-top: 6px;
             max-height: 50px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
+            overflow-y: auto;
             line-height: 1.4;
+            padding-right: 5px;
+        }
+        
+        /* 添加滚动条样式 */
+        .result-desc::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .result-desc::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .result-desc::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 3px;
+        }
+        
+        .result-desc::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
         }
         
         .pagination {
@@ -891,10 +891,6 @@
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1><i class="fas fa-dragon"></i> 游戏王卡组构建器</h1>
-        </header>
-        
         <div class="app-container">
             <!-- 左侧：卡片搜索区域 -->
             <div class="search-section">
@@ -921,7 +917,7 @@
             </div>
             
             <!-- 右侧：卡组管理区域 -->
-            <div class="deck-section">
+            <div class="deck-section" id="deck-section">
                 <!-- 卡组技能区域 -->
                 <div class="deck-skill-section">
                     <div class="skill-selector">
@@ -1164,6 +1160,7 @@
         const shareModal = document.getElementById('share-modal');
         const screenshotModal = document.getElementById('screenshot-modal');
         const deckSkillInput = document.getElementById('deck-skill');
+        const deckSection = document.getElementById('deck-section');
         
         // 保存技能输入
         deckSkillInput.addEventListener('change', () => {
@@ -1602,27 +1599,8 @@
             screenshotModal.style.display = 'none';
         });
         
-        // 确保所有卡片图片已加载
-        function preloadDeckImages() {
-            const images = [];
-            // 收集所有卡片图片URL
-            const cardElements = document.querySelectorAll('.card-item img');
-            cardElements.forEach(img => {
-                images.push(new Promise((resolve, reject) => {
-                    const imgObj = new Image();
-                    imgObj.crossOrigin = "Anonymous";
-                    imgObj.onload = resolve;
-                    imgObj.onerror = reject;
-                    imgObj.src = img.src;
-                }));
-            });
-            
-            return Promise.all(images);
-        }
-        
-        // 生成卡组截图
+        // 生成卡组截图（直接截取页面元素）
         function generateScreenshot() {
-            const deckSection = document.querySelector('.deck-section');
             const screenshotContainer = document.getElementById('screenshot-preview');
             
             // 显示生成中提示
@@ -1631,33 +1609,32 @@
             // 显示截图预览模态框
             screenshotModal.style.display = 'flex';
             
-            // 预加载所有图片
-            preloadDeckImages()
-                .then(() => {
-                    // 使用html2canvas截图
-                    return html2canvas(deckSection, {
-                        scale: 0.8,
-                        useCORS: true,
-                        backgroundColor: null,
-                        logging: true,
-                        allowTaint: true
-                    });
-                })
-                .then(canvas => {
-                    // 清空容器并添加截图
-                    screenshotContainer.innerHTML = '';
-                    screenshotContainer.appendChild(canvas);
-                    
-                    // 保存当前截图
-                    currentScreenshot = canvas;
-                    
-                    showNotification('截图生成成功！');
-                })
-                .catch(error => {
-                    console.error('截图生成失败:', error);
-                    screenshotContainer.innerHTML = '<p style="color:#e53e3e;">截图生成失败，请重试</p>';
-                    showNotification('截图生成失败', true);
-                });
+            // 获取卡组区域（不包含操作按钮）
+            const deckDisplay = document.querySelector('.deck-section');
+            
+            // 使用html2canvas截图
+            html2canvas(deckDisplay, {
+                scale: 0.8,
+                useCORS: true,
+                backgroundColor: null,
+                logging: true,
+                allowTaint: true
+            })
+            .then(canvas => {
+                // 清空容器并添加截图
+                screenshotContainer.innerHTML = '';
+                screenshotContainer.appendChild(canvas);
+                
+                // 保存当前截图
+                currentScreenshot = canvas;
+                
+                showNotification('截图生成成功！');
+            })
+            .catch(error => {
+                console.error('截图生成失败:', error);
+                screenshotContainer.innerHTML = '<p style="color:#e53e3e;">截图生成失败，请重试</p>';
+                showNotification('截图生成失败', true);
+            });
         }
         
         // 复制截图到剪贴板
@@ -1740,46 +1717,91 @@
             shareModal.style.display = 'none';
         });
         
+        // 创建默认青眼卡组
+        function createDefaultDeck() {
+            const defaultDeck = {
+                name: "默认青眼卡组",
+                date: new Date().toISOString(),
+                skill: "青眼之力",
+                main: [
+                    { name: "青色眼睛的少女", count: 1 },
+                    { name: "青色眼睛的巫女", count: 1 },
+                    { name: "青色眼睛的护人", count: 1 },
+                    { name: "青色眼睛的贤士", count: 1 },
+                    { name: "青色眼睛的祭司", count: 1 },
+                    { name: "青色眼睛的威光", count: 1 },
+                    { name: "青色眼睛的激临", count: 1 },
+                    { name: "青色眼睛的幻出", count: 1 },
+                    { name: "青色眼睛的祈祷", count: 1 },
+                    { name: "青眼白龙", count: 1 },
+                    { name: "青眼光龙", count: 1 },
+                    { name: "青眼亚白龙", count: 1 },
+                    { name: "青眼立体龙", count: 1 },
+                    { name: "白色灵龙", count: 1 },
+                    { name: "青眼混沌极龙", count: 1 },
+                    { name: "青眼混沌龙", count: 1 },
+                    { name: "深渊青眼龙", count: 1 },
+                    { name: "渊眼白龙", count: 1 },
+                    { name: "青眼龙轰临", count: 1 },
+                    { name: "白龙的威光", count: 1 }
+                ],
+                extra: [
+                    { name: "青色眼睛的精灵", count: 1 },
+                    { name: "青眼双爆裂龙", count: 1 },
+                    { name: "青眼究极龙", count: 1 },
+                    { name: "真青眼究极龙", count: 1 },
+                    { name: "青眼精灵龙", count: 1 },
+                    { name: "青眼究极灵龙", count: 1 },
+                    { name: "青眼暴君龙", count: 1 },
+                    { name: "青眼究极亚龙", count: 1 }
+                ]
+            };
+            
+            return defaultDeck;
+        }
+        
         // 显示卡组列表模态框
         function showDeckListModal() {
             // 从本地存储获取卡组
-            const savedDecks = JSON.parse(localStorage.getItem('ygoDecks')) || [];
+            let savedDecks = JSON.parse(localStorage.getItem('ygoDecks')) || [];
+            
+            // 如果没有卡组，添加默认卡组
+            if (savedDecks.length === 0) {
+                savedDecks.push(createDefaultDeck());
+                localStorage.setItem('ygoDecks', JSON.stringify(savedDecks));
+            }
             
             // 清空列表
             const deckListItems = document.getElementById('deck-list-items');
             deckListItems.innerHTML = '';
             
-            if (savedDecks.length === 0) {
-                deckListItems.innerHTML = '<div class="deck-item"><div class="result-info" style="text-align:center;padding:20px;">没有保存的卡组</div></div>';
-            } else {
-                savedDecks.forEach((deckData, index) => {
-                    const deckItem = document.createElement('div');
-                    deckItem.className = 'deck-item';
-                    
-                    const mainCount = deckData.main.reduce((sum, card) => sum + card.count, 0);
-                    const extraCount = deckData.extra.reduce((sum, card) => sum + card.count, 0);
-                    const date = new Date(deckData.date).toLocaleString();
-                    
-                    deckItem.innerHTML = `
-                        <div class="deck-item-name">${deckData.name}</div>
-                        <div class="deck-item-info">
-                            <div>主卡组: ${mainCount}张 | 额外卡组: ${extraCount}张</div>
-                            <div>技能: ${deckData.skill || '无'}</div>
-                            <div class="deck-item-date">${date}</div>
-                        </div>
-                        <div class="deck-item-actions">
-                            <button class="deck-action-btn load-deck-btn" data-index="${index}">
-                                <i class="fas fa-folder-open"></i> 加载
-                            </button>
-                            <button class="deck-action-btn delete-deck-btn" data-index="${index}">
-                                <i class="fas fa-trash-alt"></i> 删除
-                            </button>
-                        </div>
-                    `;
-                    
-                    deckListItems.appendChild(deckItem);
-                });
-            }
+            savedDecks.forEach((deckData, index) => {
+                const deckItem = document.createElement('div');
+                deckItem.className = 'deck-item';
+                
+                const mainCount = deckData.main.reduce((sum, card) => sum + card.count, 0);
+                const extraCount = deckData.extra.reduce((sum, card) => sum + card.count, 0);
+                const date = new Date(deckData.date).toLocaleString();
+                
+                deckItem.innerHTML = `
+                    <div class="deck-item-name">${deckData.name}</div>
+                    <div class="deck-item-info">
+                        <div>主卡组: ${mainCount}张 | 额外卡组: ${extraCount}张</div>
+                        <div>技能: ${deckData.skill || '无'}</div>
+                        <div class="deck-item-date">${date}</div>
+                    </div>
+                    <div class="deck-item-actions">
+                        <button class="deck-action-btn load-deck-btn" data-index="${index}">
+                            <i class="fas fa-folder-open"></i> 加载
+                        </button>
+                        <button class="deck-action-btn delete-deck-btn" data-index="${index}">
+                            <i class="fas fa-trash-alt"></i> 删除
+                        </button>
+                    </div>
+                `;
+                
+                deckListItems.appendChild(deckItem);
+            });
             
             // 添加加载和删除事件
             document.querySelectorAll('.load-deck-btn').forEach(btn => {
@@ -1931,33 +1953,135 @@
         
         // 加载卡组
         function loadDeck(deckData) {
-            deck.main = [...deckData.main];
-            deck.extra = [...deckData.extra];
+            // 清空当前卡组
+            deck.main = [];
+            deck.extra = [];
+            
+            // 加载技能
             deck.skill = deckData.skill || "";
             deckSkillInput.value = deckData.skill || "";
+            
+            // 加载主卡组
+            deckData.main.forEach(card => {
+                deck.main.push({
+                    ...card,
+                    id: 0, // 占位符，将在addCardByName中更新
+                    type: '',
+                    attribute: '',
+                    level: '',
+                    atk: '',
+                    def: '',
+                    race: '',
+                    desc: ''
+                });
+            });
+            
+            // 加载额外卡组
+            deckData.extra.forEach(card => {
+                deck.extra.push({
+                    ...card,
+                    id: 0, // 占位符，将在addCardByName中更新
+                    type: '',
+                    attribute: '',
+                    level: '',
+                    atk: '',
+                    def: '',
+                    race: '',
+                    desc: ''
+                });
+            });
+            
+            // 更新显示
             updateDeckDisplay();
+            
+            // 获取真实卡片数据
+            loadDeckCards(deckData);
+            
             showNotification(`已加载卡组"${deckData.name}"`);
+        }
+        
+        // 获取真实卡片数据
+        function loadDeckCards(deckData) {
+            // 加载主卡组
+            deckData.main.forEach(card => {
+                fetchCardData(card.name, 'main');
+            });
+            
+            // 加载额外卡组
+            deckData.extra.forEach(card => {
+                fetchCardData(card.name, 'extra');
+            });
+        }
+        
+        // 获取卡片数据
+        function fetchCardData(cardName, deckType) {
+            fetch(`https://ygocdb.com/api/v0/?search=${encodeURIComponent(cardName)}&limit=1`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result && data.result.length > 0) {
+                        const card = data.result[0];
+                        
+                        // 更新卡组中的卡片数据
+                        const targetDeck = deckType === 'main' ? deck.main : deck.extra;
+                        const deckCard = targetDeck.find(c => c.name === cardName);
+                        
+                        if (deckCard) {
+                            deckCard.id = card.id;
+                            deckCard.type = card.text?.types || card.type || '';
+                            deckCard.attribute = card.attribute || '';
+                            deckCard.level = card.level || '';
+                            deckCard.atk = card.atk || '';
+                            deckCard.def = card.def || '';
+                            deckCard.race = card.race || '';
+                            deckCard.desc = card.text?.desc || card.desc || '';
+                            
+                            // 更新显示
+                            updateDeckDisplay();
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('获取卡片数据失败:', cardName, error);
+                });
         }
         
         // 调整results-container高度
         function adjustResultsContainerHeight() {
             const deckSection = document.querySelector('.deck-section');
             const resultsContainer = document.getElementById('results-container');
+            
             if (deckSection && resultsContainer) {
-                resultsContainer.style.maxHeight = deckSection.offsetHeight + 'px';
+                // 计算满载时的高度（主卡组5行，额外卡组2行）
+                const cardHeight = 150; // 每张卡片的高度
+                const gap = 12; // 卡片间距
+                const padding = 15; // 内边距
+                const titleHeight = 30; // 标题高度
+                const skillHeight = 60; // 技能区域高度
+                
+                // 主卡组高度：5行 * 卡片高度 + 4行间距 + 标题高度 + 内边距
+                const mainHeight = 5 * cardHeight + 4 * gap + titleHeight + padding * 2;
+                
+                // 额外卡组高度：2行 * 卡片高度 + 1行间距 + 标题高度 + 内边距
+                const extraHeight = 2 * cardHeight + 1 * gap + titleHeight + padding * 2;
+                
+                // 总高度 = 技能区域 + 主卡组 + 额外卡组 + 间距
+                const totalHeight = skillHeight + mainHeight + extraHeight + 40;
+                
+                resultsContainer.style.maxHeight = `${totalHeight}px`;
             }
         }
         
         // 初始化
         window.addEventListener('DOMContentLoaded', () => {
-            updateDeckDisplay();
+            // 调整高度
             adjustResultsContainerHeight();
             
-            // 添加一些示例卡片
-            /* 不再显示欢迎通知 */
+            // 创建默认卡组
+            createDefaultDeck();
+            
+            // 窗口大小变化时调整高度
+            window.addEventListener('resize', adjustResultsContainerHeight);
         });
-        
-        window.addEventListener('resize', adjustResultsContainerHeight);
     </script>
 </body>
 </html>
