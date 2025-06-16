@@ -2,12 +2,11 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>游戏王卡组</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
-        /* 基础样式保持不变 */
         * {
             margin: 0;
             padding: 0;
@@ -47,11 +46,19 @@
             .app-container {
                 grid-template-columns: 1fr;
                 height: auto;
+                gap: 15px;
             }
             
             .search-section {
                 width: 100% !important;
                 max-width: 100% !important;
+                height: auto;
+                min-height: 400px;
+            }
+            
+            .deck-section {
+                width: 100%;
+                max-width: 100%;
             }
         }
         
@@ -59,57 +66,62 @@
         @media (max-width: 768px) {
             body {
                 padding: 10px;
-                transform: scale(0.95);
-                transform-origin: top center;
             }
             
             .container {
-                height: calc(100vh - 20px);
+                height: auto;
+            }
+            
+            .search-box button {
+                padding: 0 15px;
+            }
+            
+            .deck-actions {
+                grid-template-columns: repeat(4, 1fr) !important;
+            }
+            
+            .action-btn {
+                font-size: 0.8rem;
+                padding: 10px;
+            }
+            
+            .card-item {
+                height: 130px;
+            }
+            
+            .deck-counts {
+                flex-wrap: wrap;
             }
         }
         
         @media (max-width: 480px) {
-            body {
-                transform: scale(0.9);
+            .search-box input {
+                padding: 10px;
+                font-size: 0.9rem;
             }
-        }
-        
-        /* 卡片详情模态框优化 */
-        .card-detail {
-            display: flex;
-            padding: 20px;
-            gap: 20px;
-            max-height: 80vh;
-            overflow: auto;
-        }
-        
-        @media (max-width: 700px) {
-            .card-detail {
+            
+            .action-btn span {
+                display: none;
+            }
+            
+            .action-btn i {
+                margin-right: 0;
+            }
+            
+            .deck-skill-section {
                 flex-direction: column;
-                max-height: 90vh;
+                gap: 10px;
             }
             
-            .card-image {
-                min-width: 100% !important;
-                max-height: 300px !important;
-            }
-            
-            .card-info {
+            .skill-selector {
                 width: 100%;
-                max-height: 50vh;
-                overflow-y: auto;
             }
             
-            .card-stats {
-                flex-direction: column;
-            }
-            
-            .stat-item {
-                min-width: 100%;
+            .skill-selector input {
+                margin-right: 10px;
             }
         }
         
-        /* 其余样式保持不变 */
         .search-section {
             background: white;
             border-radius: 12px;
@@ -577,6 +589,7 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            overflow: auto;
         }
         
         .modal-content {
@@ -584,7 +597,7 @@
             border-radius: 12px;
             width: 90%;
             max-width: 700px;
-            max-height: 85vh;
+            max-height: 90vh;
             overflow: hidden;
             box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
             position: relative;
@@ -605,9 +618,47 @@
             color: #3182ce;
         }
         
+        .card-detail {
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+            max-height: 85vh;
+            overflow: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .card-detail {
+                flex-direction: row;
+                flex-wrap: wrap;
+                max-height: 80vh;
+            }
+            
+            .card-image {
+                width: 100%;
+                max-width: 300px;
+                min-width: 200px;
+                margin: 0 auto;
+            }
+            
+            .card-info {
+                width: 100%;
+                max-height: 50vh;
+                overflow-y: auto;
+            }
+            
+            .card-stats {
+                flex-direction: column;
+            }
+            
+            .stat-item {
+                min-width: 100%;
+            }
+        }
+        
         .card-image {
             flex: 1;
             min-width: 250px;
+            max-width: 300px;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
@@ -1031,16 +1082,16 @@
                 <!-- 优化后的按钮布局 -->
                 <div class="deck-actions">
                     <button class="action-btn save-btn" id="save-btn">
-                        <i class="fas fa-save"></i> 保存
+                        <i class="fas fa-save"></i> <span>保存</span>
                     </button>
                     <button class="action-btn load-btn" id="load-btn">
-                        <i class="fas fa-folder-open"></i> 加载
+                        <i class="fas fa-folder-open"></i> <span>加载</span>
                     </button>
                     <button class="action-btn share-btn" id="share-btn">
-                        <i class="fas fa-share-alt"></i> 分享
+                        <i class="fas fa-share-alt"></i> <span>分享</span>
                     </button>
                     <button class="action-btn reset-btn" id="reset-btn">
-                        <i class="fas fa-trash-alt"></i> 重置
+                        <i class="fas fa-trash-alt"></i> <span>重置</span>
                     </button>
                 </div>
             </div>
