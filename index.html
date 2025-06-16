@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>游戏王卡组</title>
-	<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎴</text></svg>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -46,6 +45,11 @@
             .app-container {
                 grid-template-columns: 1fr;
                 height: auto;
+            }
+            
+            .search-section {
+                width: 100% !important;
+                max-width: 100% !important;
             }
         }
         
@@ -298,6 +302,18 @@
             grid-template-columns: repeat(4, 1fr);
         }
         
+        @media (max-width: 1200px) {
+            .main-deck-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-deck-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
         .main-deck-grid.medium {
             grid-template-columns: repeat(5, 1fr);
         }
@@ -310,6 +326,18 @@
             grid-template-columns: repeat(4, 1fr);
             min-height: 180px;
             height: auto;
+        }
+        
+        @media (max-width: 1200px) {
+            .extra-deck-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .extra-deck-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
         
         .card-item {
@@ -396,6 +424,12 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 12px;
             margin-top: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .deck-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
         
         .action-btn {
@@ -525,6 +559,15 @@
         @media (max-width: 700px) {
             .card-detail {
                 flex-direction: column;
+            }
+            
+            .card-image {
+                min-width: 100% !important;
+                max-height: 300px !important;
+            }
+            
+            .card-info {
+                width: 100%;
             }
         }
         
@@ -928,10 +971,10 @@
                         <input type="text" class="skill-input" id="deck-skill" placeholder="输入卡组技能...">
                         <div class="deck-counts">
                             <div class="deck-count">
-                                <i class="fas fa-layer-group"></i> Main: <span id="main-count">0</span>/30
+                                <i class="fas fa-layer-group"></i> 主: <span id="main-count">0</span>/30
                             </div>
                             <div class="deck-count">
-                                <i class="fas fa-star"></i> Extra: <span id="extra-count">0</span>/8
+                                <i class="fas fa-star"></i> 额外: <span id="extra-count">0</span>/8
                             </div>
                         </div>
                     </div>
@@ -1562,13 +1605,11 @@
                 return;
             }
             
-            // 生成分享代码（添加技能信息）
+            // 生成分享代码（使用#main标记技能）
             let shareCode = "";
             
-            // 添加技能信息（使用 ! 前缀）
-            if (deck.skill) {
-                shareCode += `!${deck.skill}\n`;
-            }
+            // 添加技能信息（使用 #main 标记）
+            shareCode += `#main ${deck.skill || '无技能'}\n`;
             
             // 主卡组
             deck.main.forEach(card => {
@@ -1923,9 +1964,9 @@
                     const trimmedLine = line.trim();
                     if (!trimmedLine) continue;
                     
-                    // 解析技能行（以!开头）
-                    if (trimmedLine.startsWith('!')) {
-                        deckSkill = trimmedLine.substring(1).trim();
+                    // 解析技能行（以#main开头）
+                    if (trimmedLine.startsWith('#main')) {
+                        deckSkill = trimmedLine.substring(5).trim();
                         continue;
                     }
                     
