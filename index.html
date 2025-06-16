@@ -41,12 +41,19 @@
             height: 100%;
         }
         
-        @media (max-width: 1000px) {
-            .app-container {
-                grid-template-columns: 1fr;
-                height: auto;
-            }
-        }
+        /* 调整媒体查询 */
+		@media (max-width: 1200px) {
+			.app-container {
+				grid-template-columns: 1fr;
+				height: auto;
+			}
+			
+			.search-section,
+			.deck-section {
+				min-width: 100%;
+				max-width: 100%;
+			}
+		}
         
         .search-section {
             background: white;
@@ -57,6 +64,9 @@
             display: flex;
             flex-direction: column;
             height: 100%;
+			min-width: 400px; /* 设置最小宽度 */
+			max-width: 500px; /* 设置最大宽度 */
+			flex: 1 1 400px; /* flex-grow, flex-shrink, flex-basis */
         }
         
         .search-box {
@@ -204,6 +214,9 @@
             display: flex;
             flex-direction: column;
             height: 100%;
+			min-width: 600px; /* 设置最小宽度 */
+			max-width: 800px; /* 设置最大宽度 */
+			flex: 2 1 600px; /* flex-grow, flex-shrink, flex-basis */
         }
         
         /* 卡组技能区域 */
@@ -1541,7 +1554,7 @@
             showDeckListModal();
         });
         
-        // 分享卡组（添加技能信息）
+        // 分享卡组
 		document.getElementById('share-btn').addEventListener('click', () => {
 			// 检查卡组是否为空
 			const mainCount = deck.main.reduce((sum, card) => sum + card.count, 0);
@@ -1552,24 +1565,24 @@
 				return;
 			}
 			
-			// 生成分享代码（添加技能信息）
+			// 生成分享代码（优化格式）
 			let shareCode = "";
 			
-			// 添加技能信息
+			// 添加技能信息（使用 ! 前缀）
 			if (deck.skill) {
-				shareCode += `技能: ${deck.skill}\n\n`;
+				shareCode += `!${deck.skill}\n`;
 			}
 			
 			// 主卡组
 			deck.main.forEach(card => {
-				shareCode += `${card.name} x${card.count}\n`;
+				shareCode += `${card.name} ${card.count}\n`;
 			});
 			
 			// 额外卡组
 			if (deck.extra.length > 0) {
-				shareCode += "\n";
+				shareCode += "#extra\n";  // 使用 #extra 分隔符
 				deck.extra.forEach(card => {
-					shareCode += `${card.name} x${card.count}\n`;
+					shareCode += `${card.name} ${card.count}\n`;
 				});
 			}
 			
@@ -1614,21 +1627,27 @@
 			// 显示截图预览模态框
 			screenshotModal.style.display = 'flex';
 			
-			// 创建临时容器用于截图（只包含技能区域和卡组区域）
+			// 创建临时容器用于截图
 			const tempContainer = document.createElement('div');
 			tempContainer.style.position = 'absolute';
 			tempContainer.style.left = '-9999px';
+			tempContainer.style.background = 'white';
+			tempContainer.style.borderRadius = '12px';
+			tempContainer.style.padding = '20px';
+			tempContainer.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.05)';
+			tempContainer.style.border = '1px solid #e2e8f0';
 			tempContainer.style.width = deckSection.offsetWidth + 'px';
-			document.body.appendChild(tempContainer);
 			
 			// 克隆需要截图的元素
 			const skillClone = document.querySelector('.deck-skill-section').cloneNode(true);
 			const mainDeckClone = document.querySelector('#main-deck').parentElement.cloneNode(true);
 			const extraDeckClone = document.querySelector('#extra-deck').parentElement.cloneNode(true);
 			
+			// 添加到临时容器
 			tempContainer.appendChild(skillClone);
 			tempContainer.appendChild(mainDeckClone);
 			tempContainer.appendChild(extraDeckClone);
+			document.body.appendChild(tempContainer);
 			
 			// 预加载卡片图片
 			preloadDeckImages().then(() => {
@@ -1659,8 +1678,14 @@
 					showNotification('截图生成失败', true);
 					document.body.removeChild(tempContainer);
 				});
+			}).catch(error => {
+				console.error('图片预加载失败:', error);
+				screenshotContainer.innerHTML = '<p style="color:#e53e3e;">图片加载失败，请重试</p>';
+				showNotification('图片加载失败', true);
+				document.body.removeChild(tempContainer);
 			});
 		}
+
 
 		// 预加载卡组图片
 		function preloadDeckImages() {
@@ -1678,7 +1703,7 @@
 						imgObj.crossOrigin = "Anonymous";
 						imgObj.onload = resolve;
 						imgObj.onerror = resolve; // 即使失败也继续
-						imgObj.src = img.src;
+						imgObj.src = img.src + '?t=' + new Date().getTime(); // 避免缓存
 					});
 					promises.push(promise);
 				}
@@ -1891,42 +1916,59 @@
             }
             
             try {
-                const lines = codeText.split('\n');
-                const mainDeck = [];
-                const extraDeck = [];
-                
-                let currentSection = 'main'; // 默认为主卡组
-                
-                for (const line of lines) {
-                    const trimmedLine = line.trim();
-                    if (!trimmedLine) continue;
-                    
-                    // 检查是否为额外卡组分隔符
-                    if (trimmedLine.toLowerCase().includes('额外')) {
-                        currentSection = 'extra';
-                        continue;
-                    }
-                    
-                    // 解析卡片行
-                    const match = trimmedLine.match(/(.+)\s*x(\d+)$/);
-                    if (match) {
-                        const cardName = match[1].trim();
-                        const count = parseInt(match[2]);
-                        
-                        // 添加到相应卡组
-                        if (currentSection === 'main') {
-                            mainDeck.push({ name: cardName, count });
-                        } else {
-                            extraDeck.push({ name: cardName, count });
-                        }
-                    }
-                }
-                
-                // 清空当前卡组
-                deck.main = [];
-                deck.extra = [];
-                deck.skill = "";
-                deckSkillInput.value = "";
+				const lines = codeText.split('\n');
+				const mainDeck = [];
+				const extraDeck = [];
+				let deckSkill = "";
+				
+				let currentSection = 'main'; // 默认为主卡组
+				
+				for (const line of lines) {
+					const trimmedLine = line.trim();
+					if (!trimmedLine) continue;
+					
+					// 解析技能行（以!开头）
+					if (trimmedLine.startsWith('!')) {
+						deckSkill = trimmedLine.substring(1).trim();
+						continue;
+					}
+					
+					// 检查额外卡组分隔符（#extra）
+					if (trimmedLine.toLowerCase() === '#extra') {
+						currentSection = 'extra';
+						continue;
+					}
+					
+					// 解析卡片行（格式：卡名 数量）
+					const parts = trimmedLine.split(' ');
+					if (parts.length < 2) continue;
+					
+					// 最后一部分应该是数量
+					const countPart = parts.pop();
+					const count = parseInt(countPart);
+					
+					if (isNaN(count)) {
+						// 如果不是数字，可能是卡名的一部分
+						parts.push(countPart);
+					} else {
+						// 有效的卡片行
+						const cardName = parts.join(' ').trim();
+						
+						if (cardName && count > 0) {
+							if (currentSection === 'main') {
+								mainDeck.push({ name: cardName, count });
+							} else {
+								extraDeck.push({ name: cardName, count });
+							}
+						}
+					}
+				}
+				
+				// 清空当前卡组
+				deck.main = [];
+				deck.extra = [];
+				deck.skill = deckSkill; // 设置解析出的技能
+				deckSkillInput.value = deckSkill; // 更新输入框
                 
                 // 加载主卡组
                 let mainLoadCount = 0;
