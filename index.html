@@ -2,11 +2,13 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>游戏王卡组构建器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5">
+    <title>游戏王卡组</title>
+	<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎴</text></svg>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
+        /* 基础样式保持不变 */
         * {
             margin: 0;
             padding: 0;
@@ -46,19 +48,11 @@
             .app-container {
                 grid-template-columns: 1fr;
                 height: auto;
-                gap: 15px;
             }
             
             .search-section {
                 width: 100% !important;
                 max-width: 100% !important;
-                height: auto;
-                min-height: 400px;
-            }
-            
-            .deck-section {
-                width: 100%;
-                max-width: 100%;
             }
         }
         
@@ -66,62 +60,57 @@
         @media (max-width: 768px) {
             body {
                 padding: 10px;
+                transform: scale(0.95);
+                transform-origin: top center;
             }
             
             .container {
-                height: auto;
-            }
-            
-            .search-box button {
-                padding: 0 15px;
-            }
-            
-            .deck-actions {
-                grid-template-columns: repeat(4, 1fr) !important;
-            }
-            
-            .action-btn {
-                font-size: 0.8rem;
-                padding: 10px;
-            }
-            
-            .card-item {
-                height: 130px;
-            }
-            
-            .deck-counts {
-                flex-wrap: wrap;
+                height: calc(100vh - 20px);
             }
         }
         
         @media (max-width: 480px) {
-            .search-box input {
-                padding: 10px;
-                font-size: 0.9rem;
-            }
-            
-            .action-btn span {
-                display: none;
-            }
-            
-            .action-btn i {
-                margin-right: 0;
-            }
-            
-            .deck-skill-section {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .skill-selector {
-                width: 100%;
-            }
-            
-            .skill-selector input {
-                margin-right: 10px;
+            body {
+                transform: scale(0.9);
             }
         }
         
+        /* 卡片详情模态框优化 */
+        .card-detail {
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+            max-height: 80vh;
+            overflow: auto;
+        }
+        
+        @media (max-width: 700px) {
+            .card-detail {
+                flex-direction: column;
+                max-height: 90vh;
+            }
+            
+            .card-image {
+                min-width: 100% !important;
+                max-height: 300px !important;
+            }
+            
+            .card-info {
+                width: 100%;
+                max-height: 50vh;
+                overflow-y: auto;
+            }
+            
+            .card-stats {
+                flex-direction: column;
+            }
+            
+            .stat-item {
+                min-width: 100%;
+            }
+        }
+        
+        /* 其余样式保持不变 */
         .search-section {
             background: white;
             border-radius: 12px;
@@ -589,8 +578,6 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
-            overflow: auto;
-            padding: 15px;
         }
         
         .modal-content {
@@ -598,8 +585,8 @@
             border-radius: 12px;
             width: 90%;
             max-width: 700px;
-            max-height: 90vh;
-            overflow: auto;
+            max-height: 85vh;
+            overflow: hidden;
             box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
             position: relative;
         }
@@ -619,50 +606,9 @@
             color: #3182ce;
         }
         
-        .card-detail {
-            display: flex;
-            padding: 20px;
-            gap: 20px;
-            max-height: 85vh;
-            overflow: auto;
-        }
-        
-        @media (max-width: 768px) {
-            .card-detail {
-                flex-direction: column;
-                max-height: 80vh;
-                padding: 15px;
-            }
-            
-            .card-image {
-                width: 100%;
-                max-width: 300px;
-                min-width: auto;
-                margin: 0 auto;
-            }
-            
-            .card-info {
-                width: 100%;
-                max-height: 50vh;
-                overflow-y: auto;
-                padding: 10px 5px;
-            }
-            
-            .card-stats {
-                flex-direction: column;
-                gap: 8px;
-            }
-            
-            .stat-item {
-                min-width: 100%;
-                padding: 6px 10px;
-            }
-        }
-        
         .card-image {
             flex: 1;
             min-width: 250px;
-            max-width: 300px;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
@@ -774,8 +720,6 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
-            overflow: auto;
-            padding: 15px;
         }
         
         .add-card-content,
@@ -789,8 +733,6 @@
             max-width: 450px;
             box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);
             text-align: center;
-            max-height: 90vh;
-            overflow: auto;
         }
         
         .screenshot-content {
@@ -812,7 +754,6 @@
             align-items: center;
             justify-content: center;
             margin-bottom: 15px;
-            flex-direction: column;
         }
         
         .card-preview img {
@@ -822,11 +763,6 @@
             border-radius: 6px;
             border: 1px solid #3182ce;
             background: #f7fafc;
-            margin-bottom: 10px;
-        }
-        
-        .card-preview-info {
-            text-align: center;
         }
         
         .quantity-selector {
@@ -834,7 +770,6 @@
             justify-content: center;
             gap: 12px;
             margin: 20px 0;
-            flex-wrap: wrap;
         }
         
         .quantity-btn {
@@ -860,7 +795,6 @@
             display: flex;
             gap: 12px;
             justify-content: center;
-            flex-wrap: wrap;
         }
         
         .add-card-btn {
@@ -871,7 +805,6 @@
             cursor: pointer;
             font-size: 1rem;
             transition: all 0.3s;
-            min-width: 120px;
         }
         
         .confirm-add {
@@ -910,7 +843,6 @@
             display: flex;
             gap: 8px;
             margin-top: 8px;
-            flex-wrap: wrap;
         }
         
         .deck-action-btn {
@@ -922,9 +854,6 @@
             display: flex;
             align-items: center;
             gap: 4px;
-            flex: 1;
-            min-width: 100px;
-            justify-content: center;
         }
         
         .close-deck-list {
@@ -959,7 +888,6 @@
             gap: 12px;
             justify-content: center;
             margin-top: 15px;
-            flex-wrap: wrap;
         }
         
         .share-btn-action {
@@ -973,8 +901,6 @@
             gap: 6px;
             font-size: 1rem;
             transition: all 0.3s;
-            min-width: 140px;
-            justify-content: center;
         }
         
         .copy-btn {
@@ -1014,7 +940,6 @@
             gap: 12px;
             justify-content: center;
             margin-top: 15px;
-            flex-wrap: wrap;
         }
         
         .screenshot-btn {
@@ -1027,8 +952,6 @@
             align-items: center;
             gap: 6px;
             transition: all 0.3s;
-            min-width: 160px;
-            justify-content: center;
         }
         
         .copy-screenshot-btn {
@@ -1045,69 +968,6 @@
             color: #a0aec0;
             padding: 30px;
             font-style: italic;
-        }
-        
-        /* 移动端模态框优化 */
-        @media (max-width: 768px) {
-            .modal-content, 
-            .add-card-content,
-            .deck-list-content,
-            .share-content,
-            .screenshot-content {
-                padding: 20px 15px;
-                width: 95%;
-            }
-            
-            .add-card-title,
-            .deck-list-title,
-            .share-title,
-            .screenshot-title {
-                font-size: 1.2rem;
-            }
-            
-            .add-card-actions {
-                flex-direction: column;
-                gap: 8px;
-            }
-            
-            .add-card-btn {
-                width: 100%;
-                padding: 12px;
-            }
-            
-            .deck-item-actions {
-                flex-direction: column;
-            }
-            
-            .deck-action-btn {
-                width: 100%;
-                padding: 10px;
-            }
-            
-            .share-options {
-                flex-direction: column;
-            }
-            
-            .share-option {
-                margin-bottom: 20px;
-            }
-            
-            .share-buttons,
-            .screenshot-buttons {
-                flex-direction: column;
-                gap: 8px;
-            }
-            
-            .share-btn-action,
-            .screenshot-btn {
-                width: 100%;
-            }
-            
-            .close-modal {
-                top: 8px;
-                right: 10px;
-                font-size: 1.5rem;
-            }
         }
     </style>
 </head>
@@ -1146,10 +1006,10 @@
                         <input type="text" class="skill-input" id="deck-skill" placeholder="输入卡组技能...">
                         <div class="deck-counts">
                             <div class="deck-count">
-                                <i class="fas fa-layer-group"></i> 主: <span id="main-count">0</span>/30
+                                <i class="fas fa-layer-group"></i> Main: <span id="main-count">0</span>/30
                             </div>
                             <div class="deck-count">
-                                <i class="fas fa-star"></i> 额外: <span id="extra-count">0</span>/8
+                                <i class="fas fa-star"></i> Extra: <span id="extra-count">0</span>/8
                             </div>
                         </div>
                     </div>
@@ -1172,16 +1032,16 @@
                 <!-- 优化后的按钮布局 -->
                 <div class="deck-actions">
                     <button class="action-btn save-btn" id="save-btn">
-                        <i class="fas fa-save"></i> <span>保存</span>
+                        <i class="fas fa-save"></i> 保存
                     </button>
                     <button class="action-btn load-btn" id="load-btn">
-                        <i class="fas fa-folder-open"></i> <span>加载</span>
+                        <i class="fas fa-folder-open"></i> 加载
                     </button>
                     <button class="action-btn share-btn" id="share-btn">
-                        <i class="fas fa-share-alt"></i> <span>分享</span>
+                        <i class="fas fa-share-alt"></i> 分享
                     </button>
                     <button class="action-btn reset-btn" id="reset-btn">
-                        <i class="fas fa-trash-alt"></i> <span>重置</span>
+                        <i class="fas fa-trash-alt"></i> 重置
                     </button>
                 </div>
             </div>
