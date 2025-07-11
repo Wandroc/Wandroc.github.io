@@ -1077,7 +1077,6 @@
         
         .screenshot-container canvas {
             max-height: 100%;
-            border-radius: 8px;
         }
         
         .screenshot-buttons {
@@ -1857,7 +1856,7 @@
             preloadDeckImages().then(() => {
                 // 使用html2canvas截图
                 html2canvas(tempContainer, {
-                    scale: 1,
+                    scale: 2,
                     useCORS: false,
                     backgroundColor: null,
                     logging: false,
@@ -1956,7 +1955,7 @@
             }
             
             const link = document.createElement('a');
-            link.download = `${deck.skill || '游戏王卡组'}.png`;
+            link.download = `${deckName || deck.skill || '游戏王卡组'}.png`;
             link.href = currentScreenshot.toDataURL('image/png');
             link.click();
         }
