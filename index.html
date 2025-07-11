@@ -68,8 +68,8 @@
             
             /* 移动端卡片尺寸优化 */
             .card-item {
-                height: 100px !important;
-                width: 70px !important;
+                height: 120px !important;
+                width: 80px !important;
             }
             
             /* 主卡组布局 - 移动端固定5列 */
@@ -121,11 +121,7 @@
                 width: 95% !important;
                 max-width: 95% !important;
             }
-            
-            .share-content {
-                max-width: 350px !important;
-            }
-            
+
             .screenshot-content {
                 max-width: 95% !important;
             }
@@ -140,7 +136,7 @@
             .card-image {
                 min-width: 40% !important;
                 max-width: 40% !important;
-                max-height: 250px !important;
+                max-height: 350px !important;
             }
             
             .card-info {
@@ -158,12 +154,12 @@
             .add-card-preview {
                 min-width: 40% !important;
                 max-width: 40% !important;
-                max-height: 250px !important;
+                max-height: 350px !important;
             }
             
             .add-card-info {
                 min-width: 55%;
-                max-height: 60vh;
+                max-height: 45vh;
                 overflow-y: auto;
             }
             
@@ -205,6 +201,8 @@
             .card-info, .add-card-info {
                 width: 100% !important;
                 min-width: 100% !important;
+				max-height: 45vh;
+				overflow-y: auto;
             }
         }
         
@@ -213,7 +211,7 @@
             display: flex;
             padding: 20px;
             gap: 20px;
-            max-height: 80vh;
+            max-height: 90vh;
             overflow: auto;
         }
         
@@ -453,11 +451,11 @@
         /* 主卡组布局 - 自动调整 */
         .deck-grid {
             display: grid;
-            gap: 12px;
+            gap: 10px;
             min-height: 120px;
             background: #f7fafc;
             border-radius: 8px;
-            padding: 15px;
+            padding: 10px;
             border: 1px dashed #cbd5e0;
             flex: 1;
             overflow-y: auto;
@@ -470,7 +468,7 @@
         
         @media (max-width: 1200px) {
             .main-deck-grid {
-                grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: repeat(5, 1fr);
             }
         }
         
@@ -490,7 +488,7 @@
         
         @media (max-width: 1200px) {
             .extra-deck-grid {
-                grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: repeat(5, 1fr);
             }
         }
         
@@ -803,8 +801,8 @@
         .screenshot-content {
             background: white;
             border-radius: 12px;
-            padding: 25px;
-            max-width: 500px;
+            padding: 20px;
+            max-width: 90vh;
             width: 90%;
             box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);
         }
@@ -814,6 +812,7 @@
             display: flex;
             gap: 20px;
             padding: 15px;
+			max-height: 90vh;
         }
         
         .add-card-preview {
@@ -843,14 +842,14 @@
         
         .add-card-name {
             font-size: 1.6rem;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             color: #3182ce;
         }
         
         .add-card-type {
             font-size: 1.1rem;
             color: #718096;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             font-weight: 500;
         }
         
@@ -864,14 +863,14 @@
             background: #f7fafc;
             border-radius: 6px;
             max-height: 200px;
-            margin-bottom: 15px;
+            margin-bottom: 5px;
         }
         
         .quantity-selector {
             display: flex;
             justify-content: center;
             gap: 12px;
-            margin: 5px 0 15px;
+            margin: 5px 0 10px;
         }
         
         .quantity-btn {
@@ -1065,20 +1064,19 @@
         
         /* 截图容器样式 */
         .screenshot-container {
-            margin: 15px 0;
+            margin: 10px 0;
             text-align: center;
             max-width: 100%;
             max-height: 60vh;
             overflow: auto;
             background: #f7fafc;
             border-radius: 8px;
-            padding: 15px;
+            padding: 5px;
             border: 1px solid #e2e8f0;
         }
         
         .screenshot-container canvas {
-            max-width: 100%;
-            max-height: 55vh;
+            max-height: 100%;
             border-radius: 8px;
         }
         
@@ -1243,7 +1241,6 @@
                     <div class="add-card-desc" id="add-card-desc">卡片描述</div>
                     
                     <div class="quantity-selector-container">
-                        <p style="font-weight: bold; margin: 5px 0;">添加数量:</p>
                         <div class="quantity-selector">
                             <button class="quantity-btn" data-quantity="1">1</button>
                             <button class="quantity-btn" data-quantity="2">2</button>
