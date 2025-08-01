@@ -53,6 +53,13 @@
                 width: 100% !important;
                 max-width: 100% !important;
             }
+            
+            /* 新增：移动端容器宽度100% */
+            .container {
+                width: 100%;
+                max-width: 100%;
+                padding: 10px;
+            }
         }
         
         /* 移动端缩放适配 */
@@ -117,7 +124,8 @@
             .add-card-content, 
             .deck-list-content, 
             .share-content, 
-            .screenshot-content {
+            .screenshot-content,
+            .save-deck-content {
                 width: 95% !important;
                 max-width: 95% !important;
             }
@@ -164,11 +172,11 @@
             }
             
             /* 移动端模态框底部显示 */
-            .deck-list-modal, .share-modal {
+            .deck-list-modal, .share-modal, .save-deck-modal {
                 align-items: flex-end;
             }
             
-            .deck-list-content, .share-content {
+            .deck-list-content, .share-content, .save-deck-content {
                 width: 100%;
                 max-width: 100%;
                 border-radius: 12px 12px 0 0;
@@ -782,7 +790,8 @@
         .add-card-modal,
         .deck-list-modal,
         .share-modal,
-        .screenshot-modal {
+        .screenshot-modal,
+        .save-deck-modal {
             display: none;
             position: fixed;
             top: 0;
@@ -798,7 +807,8 @@
         .add-card-content,
         .deck-list-content,
         .share-content,
-        .screenshot-content {
+        .screenshot-content,
+        .save-deck-content {
             background: white;
             border-radius: 12px;
             padding: 20px;
@@ -990,7 +1000,7 @@
         }
         
         /* 分享模态框优化 */
-        .share-content {
+        .share-content,.screenshot-content {
             max-width: 400px; /* 减小宽度 */
         }
         
@@ -1075,8 +1085,11 @@
             border: 1px solid #e2e8f0;
         }
         
-        .screenshot-container canvas {
-            max-height: 100%;
+        .screenshot-container img {
+            max-width: 100%;
+            max-height: 60vh;
+            display: block;
+            margin: 0 auto;
         }
         
         .screenshot-buttons {
@@ -1128,6 +1141,40 @@
             background: #f7fafc;
             margin-bottom: 10px;
             resize: vertical;
+        }
+        
+        /* 保存卡组模态框样式 */
+        .save-deck-content {
+            max-width: 400px;
+        }
+        
+        .save-input {
+            margin: 15px 0;
+        }
+        
+        .save-input input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            background: #f8fafc;
+            color: #333;
+            font-size: 1rem;
+        }
+        
+        .save-input input:focus {
+            outline: none;
+            border-color: #4da6ff;
+            box-shadow: 0 0 10px rgba(77, 166, 255, 0.2);
+        }
+        
+        .save-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .save-actions button {
+            flex: 1;
         }
     </style>
 </head>
@@ -1337,6 +1384,20 @@
         </div>
     </div>
     
+    <!-- 保存卡组模态框 -->
+    <div class="save-deck-modal" id="save-deck-modal">
+        <div class="save-deck-content">
+            <h2><i class="fas fa-save"></i> 保存卡组</h2>
+            <div class="save-input">
+                <input type="text" id="deck-name-input" placeholder="输入卡组名称">
+            </div>
+            <div class="save-actions">
+                <button class="btn btn-success" id="save-deck-confirm">保存</button>
+                <button class="btn btn-danger" id="save-deck-cancel">取消</button>
+            </div>
+        </div>
+    </div>
+    
     <!-- 通知 -->
     <div class="notification" id="notification">操作成功！</div>
     
@@ -1360,6 +1421,7 @@
         let currentSelectedCard = null;
         let selectedQuantity = 1;
         let currentScreenshot = null;
+        let currentScreenshotImg = null;
         
         // DOM元素
         const mainDeckEl = document.getElementById('main-deck');
@@ -1375,6 +1437,7 @@
         const deckListModal = document.getElementById('deck-list-modal');
         const shareModal = document.getElementById('share-modal');
         const screenshotModal = document.getElementById('screenshot-modal');
+        const saveDeckModal = document.getElementById('save-deck-modal');
         const deckSkillInput = document.getElementById('deck-skill');
         const deckSection = document.getElementById('deck-section');
         
@@ -1719,10 +1782,20 @@
             }, 3000);
         }
         
-        // 保存卡组
+        // 保存卡组按钮事件
         document.getElementById('save-btn').addEventListener('click', () => {
-            const deckName = prompt('请输入卡组名称：');
-            if (!deckName) return;
+            // 显示保存卡组模态框
+            document.getElementById('deck-name-input').value = "";
+            saveDeckModal.style.display = 'flex';
+        });
+        
+        // 保存卡组确认按钮
+        document.getElementById('save-deck-confirm').addEventListener('click', () => {
+            const deckName = document.getElementById('deck-name-input').value.trim();
+            if (!deckName) {
+                showNotification('请输入卡组名称', true);
+                return;
+            }
             
             const deckData = {
                 name: deckName,
@@ -1748,6 +1821,12 @@
             localStorage.setItem('ygoDecks', JSON.stringify(savedDecks));
             
             showNotification(`卡组"${deckName}"保存成功！`);
+            saveDeckModal.style.display = 'none';
+        });
+        
+        // 保存卡组取消按钮
+        document.getElementById('save-deck-cancel').addEventListener('click', () => {
+            saveDeckModal.style.display = 'none';
         });
         
         // 加载卡组按钮
@@ -1826,7 +1905,7 @@
             const screenshotContainer = document.getElementById('screenshot-preview');
             
             // 显示生成中提示
-            screenshotContainer.innerHTML = '<p>正在生成截图，请稍候...</p>';
+            screenshotContainer.innerHTML = '<p class="screenshot-placeholder">正在生成截图，请稍候...</p>';
             
             // 显示截图预览模态框
             screenshotModal.style.display = 'flex';
@@ -1863,12 +1942,18 @@
                     allowTaint: false
                 })
                 .then(canvas => {
+                    // 将canvas转换为img
+                    const img = new Image();
+                    img.src = canvas.toDataURL('image/png');
+                    img.alt = '卡组截图';
+                    
                     // 清空容器并添加截图
                     screenshotContainer.innerHTML = '';
-                    screenshotContainer.appendChild(canvas);
+                    screenshotContainer.appendChild(img);
                     
                     // 保存当前截图
                     currentScreenshot = canvas;
+                    currentScreenshotImg = img;
                     
                     // 移除临时容器
                     document.body.removeChild(tempContainer);
@@ -1949,14 +2034,14 @@
         
         // 下载截图
         function downloadScreenshot() {
-            if (!currentScreenshot) {
+            if (!currentScreenshotImg) {
                 showNotification('请先生成截图', true);
                 return;
             }
             
             const link = document.createElement('a');
-            link.download = `${deckName || deck.skill || '游戏王卡组'}.png`;
-            link.href = currentScreenshot.toDataURL('image/png');
+            link.download = `${deck.skill || '游戏王卡组'}.png`;
+            link.href = currentScreenshotImg.src;
             link.click();
         }
         
@@ -1993,6 +2078,9 @@
             }
             if (e.target === screenshotModal) {
                 screenshotModal.style.display = 'none';
+            }
+            if (e.target === saveDeckModal) {
+                saveDeckModal.style.display = 'none';
             }
         });
         
@@ -2148,40 +2236,30 @@
         // 创建默认青眼卡组
         function createDefaultDeck() {
             const defaultDeck = {
-                name: "默认青眼卡组",
+                name: "默认卡组",
                 date: new Date().toISOString(),
-                skill: "青眼之力",
+                skill: "战斗编年史",
                 main: [
-                    { name: "青色眼睛的少女", count: 1 },
-                    { name: "青色眼睛的巫女", count: 1 },
-                    { name: "青色眼睛的护人", count: 1 },
-                    { name: "青色眼睛的贤士", count: 1 },
-                    { name: "青色眼睛的祭司", count: 1 },
-                    { name: "青色眼睛的威光", count: 1 },
-                    { name: "青色眼睛的激临", count: 1 },
-                    { name: "青色眼睛的幻出", count: 1 },
-                    { name: "青色眼睛的祈祷", count: 1 },
-                    { name: "青眼白龙", count: 1 },
-                    { name: "青眼光龙", count: 1 },
-                    { name: "青眼亚白龙", count: 1 },
-                    { name: "青眼立体龙", count: 1 },
-                    { name: "白色灵龙", count: 1 },
-                    { name: "青眼混沌极龙", count: 1 },
-                    { name: "青眼混沌龙", count: 1 },
-                    { name: "深渊青眼龙", count: 1 },
-                    { name: "渊眼白龙", count: 1 },
-                    { name: "青眼龙轰临", count: 1 },
-                    { name: "白龙的威光", count: 1 }
+                    { name: "青眼亚白龙", count: 2 },
+                    { name: "白色灵龙", count: 3 },
+                    { name: "最强混沌战士", count: 1 },
+                    { name: "青眼白龙", count: 3 },
+                    { name: "继承之魂", count: 2 },
+                    { name: "究极融合", count: 1 },
+                    { name: "龙觉醒旋律", count: 3 },
+                    { name: "摇号机GO！GO！", count: 1 },
+					{ name: "复活之福音", count: 2 },
+                    { name: "王者的看破", count: 2 },
                 ],
                 extra: [
-                    { name: "青色眼睛的精灵", count: 1 },
-                    { name: "青眼双爆裂龙", count: 1 },
-                    { name: "青眼究极龙", count: 1 },
+                    { name: "究极龙骑士", count: 1 },
                     { name: "真青眼究极龙", count: 1 },
-                    { name: "青眼精灵龙", count: 1 },
-                    { name: "青眼究极灵龙", count: 1 },
-                    { name: "青眼暴君龙", count: 1 },
-                    { name: "青眼究极亚龙", count: 1 }
+                    { name: "青眼究极龙", count: 1 },
+                    { name: "青眼双爆裂龙", count: 1 },
+                    { name: "宵星之机神 丁吉尔苏", count: 1 },
+                    { name: "银河眼光波龙", count: 1 },
+                    { name: "银河眼重铠光子龙", count: 1 },
+                    { name: "银河眼光波刃龙", count: 1 }
                 ]
             };
             
