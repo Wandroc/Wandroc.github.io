@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>游戏王决斗链接</title>
-	<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎴</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎴</text></svg>">
     <!-- 引入Font Awesome图标库 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -18,9 +18,22 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
+            background: #f0f2f5;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
         }
 
-        /* 标签容器样式 - 固定在顶部并随滚动保持可见 */
+        /* 整体缩放容器 */
+        .scale-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-origin: top left;
+            transition: transform 0.3s ease;
+        }
+
+        /* 标签容器样式 - 固定在顶部 */
         .tabs {
             position: sticky;
             top: 0;
@@ -29,54 +42,102 @@
             background-color: #f8fafc;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             z-index: 1000;
+            padding: 0 5px; /* 减少内边距 */
         }
 
-        /* 标签按钮样式 - 各占一半宽度 */
+        /* 标签按钮容器 */
+        .tab-buttons {
+            display: flex;
+            flex: 1;
+        }
+
+        /* 标签按钮样式 */
         .tab-button {
-            flex: 1; /* 两个按钮各占一半宽度 */
+            flex: 1;
             background-color: #f1f5f9;
             color: #3b82f6;
             border: none;
-            padding: 14px 0;
+            padding: 12px 0; /* 减少垂直内边距 */
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px; /* 减小字体大小 */
             font-weight: 500;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px; /* 减少图标与文本间距 */
             border-bottom: 3px solid transparent;
         }
 
-        /* 悬停效果 */
         .tab-button:hover {
             background-color: #e0f2fe;
             color: #1e40af;
         }
 
-        /* 激活状态样式 */
         .tab-button.active {
             background-color: #ffffff;
             color: #1e40af;
-            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+            border-bottom: 3px solid #3b82f6;
         }
 
-        /* 内容容器样式 */
-        .iframe-container {
-            width: 100%;
-            overflow: hidden;
+        /* 缩放控制集成到标签栏 */
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 4px; /* 减少按钮间距 */
+            padding: 0 5px; /* 减少内边距 */
+            background: #f1f5f9;
+            border-left: 1px solid #e2e8f0;
         }
 
-        /* iframe样式 */
-        iframe {
-            width: 100%;
-            height: calc(100vh - 56px); /* 减去标签栏高度 */
+        .zoom-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #3b82f6; /* 蓝色背景 */
+            color: white; /* 白色图标 */
             border: none;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .zoom-btn:hover {
+            background: #1e40af; /* 深蓝色悬停效果 */
+        }
+
+        /* 缩放通知样式 */
+        .zoom-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 2000;
+            opacity: 0;
             transition: opacity 0.3s ease;
         }
 
-        /* 隐藏未激活的iframe */
+        .iframe-container {
+            width: 100%;
+            height: calc(100vh - 48px); /* 根据实际高度调整 */
+            overflow: hidden;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
         iframe:not(.active) {
             display: none;
         }
@@ -84,64 +145,160 @@
         /* 响应式调整 */
         @media (max-width: 768px) {
             .tab-button {
-                font-size: 14px;
-                padding: 12px 0;
+                font-size: 13px; /* 进一步减小字体 */
+                padding: 10px 0; /* 进一步减少内边距 */
             }
             
-            iframe {
-                height: calc(100vh - 50px);
+            .zoom-controls {
+                padding: 0 3px;
+            }
+            
+            .zoom-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 14px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- 标签页导航 -->
-    <div class="tabs">
-        <button class="tab-button active" data-target="tab1">
-            <i class="fas fa-image"></i> 卡牌查询
-        </button>
-        <button class="tab-button" data-target="tab2">
-            <i class="fas fa-box"></i> 卡组构建
-        </button>
-    </div>
+    <!-- 缩放通知 -->
+    <div id="zoomNotification" class="zoom-notification"></div>
     
-    <!-- 内容区域 -->
-    <div class="iframe-container">
-        <iframe id="tab1" class="active" src="YugiohCard.html" title="游戏王卡牌查询"></iframe>
-        <iframe id="tab2" src="YugiohDeck.html" title="游戏王卡组构建"></iframe>
+    <!-- 整体缩放容器 -->
+    <div class="scale-container" id="scaleContainer">
+        <!-- 标签栏 -->
+        <div class="tabs">
+            <div class="tab-buttons">
+                <button class="tab-button active" data-target="tab1">
+                    <i class="fas fa-image"></i> 卡牌查询
+                </button>
+                <button class="tab-button" data-target="tab2">
+                    <i class="fas fa-box"></i> 卡组构建
+                </button>
+            </div>
+            
+            <!-- 集成在标签栏的缩放控件 -->
+            <div class="zoom-controls">
+                <button class="zoom-btn" id="zoomOut" title="缩小">
+                    <i class="fas fa-search-minus"></i>
+                </button>
+                <button class="zoom-btn" id="zoomIn" title="放大">
+                    <i class="fas fa-search-plus"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 内容区域 -->
+        <div class="iframe-container">
+            <iframe id="tab1" class="active" src="YugiohCard.html" title="游戏王卡牌查询"></iframe>
+            <iframe id="tab2" src="YugiohDeck.html" title="游戏王卡组构建"></iframe>
+        </div>
     </div>
 
-    <!-- 标签切换逻辑 -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const tabButtons = document.querySelectorAll('.tab-button');
             const iframes = document.querySelectorAll('iframe');
-
+            const zoomInBtn = document.getElementById('zoomIn');
+            const zoomOutBtn = document.getElementById('zoomOut');
+            const scaleContainer = document.getElementById('scaleContainer');
+            const zoomNotification = document.getElementById('zoomNotification');
+            
+            // 当前缩放比例
+            let currentScale = 1;
+            
+            // 显示缩放通知
+            function showZoomNotification(scale) {
+                zoomNotification.textContent = `缩放: ${Math.round(scale * 100)}%`;
+                zoomNotification.style.opacity = '1';
+                
+                // 3秒后淡出
+                setTimeout(() => {
+                    zoomNotification.style.opacity = '0';
+                }, 2000);
+            }
+            
+            // 应用缩放（对整个页面）
+            function applyScale(scale) {
+                // 限制缩放范围
+                currentScale = Math.max(0.5, Math.min(scale, 1.2));
+                
+                // 应用缩放
+                scaleContainer.style.transform = `scale(${currentScale})`;
+                
+                // 计算实际占用空间
+                const containerWidth = document.documentElement.clientWidth / currentScale;
+                const containerHeight = document.documentElement.clientHeight / currentScale;
+                scaleContainer.style.width = `${containerWidth}px`;
+                scaleContainer.style.height = `${containerHeight}px`;
+                
+                // 显示通知
+                showZoomNotification(currentScale);
+            }
+            
+            // 重置缩放（根据设备类型）
+            function resetScale() {
+                if (window.innerWidth <= 768) {
+                    applyScale(0.75);
+                } else {
+                    applyScale(1);
+                }
+            }
+            
+            // 缩放按钮事件
+            zoomInBtn.addEventListener('click', () => applyScale(currentScale + 0.05));
+            zoomOutBtn.addEventListener('click', () => applyScale(currentScale - 0.05));
+            
+            // 标签切换逻辑
             tabButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     // 移除所有按钮的激活状态
                     tabButtons.forEach(btn => btn.classList.remove('active'));
                     // 为当前点击的按钮添加激活状态
                     this.classList.add('active');
-
+                    
                     // 获取目标iframe的ID
                     const targetId = this.getAttribute('data-target');
                     
-                    // 隐藏所有iframe并移除激活状态
+                    // 隐藏所有iframe
                     iframes.forEach(iframe => {
                         iframe.classList.remove('active');
                         iframe.style.display = 'none';
                     });
-
-                    // 显示目标iframe并添加激活状态
+                    
+                    // 显示目标iframe
                     const targetIframe = document.getElementById(targetId);
                     targetIframe.classList.add('active');
                     targetIframe.style.display = 'block';
                     
-                    // 触发iframe刷新（可选）
-                    targetIframe.src = targetIframe.src;
+                    // 如果是切换到tab2，应用缩放设置
+                    if (targetId === 'tab2') {
+                        resetScale();
+                    } else {
+                        // 切换到tab1时重置缩放
+                        applyScale(1);
+                    }
                 });
             });
+            
+            // 动态调整iframe容器高度
+            function adjustContainerHeight() {
+                const tabsHeight = document.querySelector('.tabs').offsetHeight;
+                const container = document.querySelector('.iframe-container');
+                container.style.height = `calc(100vh - ${tabsHeight}px)`;
+            }
+            
+            // 初始高度调整
+            adjustContainerHeight();
+            
+            // 窗口大小变化时重新计算高度
+            window.addEventListener('resize', adjustContainerHeight);
+            
+            // 初始状态（如果直接打开的是tab2）
+            if (document.getElementById('tab2').classList.contains('active')) {
+                resetScale();
+            }
         });
     </script>
 </body>
