@@ -568,16 +568,6 @@
             protocolInfo.textContent = currentProtocol;
             protocolInfo.style.color = currentProtocol === 'https:' ? '#2ecc71' : '#e74c3c';
             
-            // 移动端提示
-            if (window.innerWidth <= 768) {
-                const notification = document.getElementById('screenshotNotification');
-                notification.querySelector('span').textContent = '提示：在移动端，搜索按钮已优化为图标';
-                notification.classList.add('warning', 'show');
-                
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                }, 3000);
-            }
         });
 
         // 显示大图功能
