@@ -73,11 +73,17 @@
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
-            transition: transform 0.2s, background 0.3s, box-shadow 0.3s;
+            transition: transform 0.2s, background 0.3s, box-shadow 0.3s, width 0.3s, border-radius 0.3s;
             box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
             display: flex;
             align-items: center;
             gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-btn .button-text {
+            transition: opacity 0.3s, transform 0.3s;
         }
 
         .search-btn:hover {
@@ -390,15 +396,35 @@
             color: white;
         }
 
+        /* 移动端优化 */
         @media (max-width: 768px) {
-            .search-box {
-                flex-direction: column;
-                padding: 12px;
-            }
-
             .search-btn {
-                width: 100%;
+                padding: 15px; /* 调整为正方形 */
+                width: 60px;  /* 固定宽度 */
+                height: 60px; /* 固定高度 */
+                border-radius: 50%; /* 圆形 */
                 justify-content: center;
+            }
+            
+            .search-btn .button-text {
+                display: none; /* 隐藏文本 */
+            }
+            
+            .search-btn::after {
+                content: "搜索";
+                position: absolute;
+                bottom: -25px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 12px;
+                color: #555;
+                opacity: 0;
+                transition: opacity 0.3s;
+                white-space: nowrap;
+            }
+            
+            .search-btn:hover::after {
+                opacity: 1;
             }
             
             .cards-grid {
@@ -429,6 +455,37 @@
                 padding: 8px 15px;
                 font-size: 14px;
             }
+            
+            .search-box {
+                padding: 12px;
+                gap: 8px;
+            }
+            
+            #searchInput {
+                padding: 12px;
+                font-size: 15px;
+            }
+        }
+
+        /* 响应式优化 */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .search-btn {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .search-box {
+                padding: 10px;
+            }
+            
+            #searchInput {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -441,7 +498,7 @@
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
-                搜索卡片
+                <span class="button-text">搜索卡片</span>
             </button>
         </div>
         
@@ -510,6 +567,17 @@
             const currentProtocol = window.location.protocol;
             protocolInfo.textContent = currentProtocol;
             protocolInfo.style.color = currentProtocol === 'https:' ? '#2ecc71' : '#e74c3c';
+            
+            // 移动端提示
+            if (window.innerWidth <= 768) {
+                const notification = document.getElementById('screenshotNotification');
+                notification.querySelector('span').textContent = '提示：在移动端，搜索按钮已优化为图标';
+                notification.classList.add('warning', 'show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
         });
 
         // 显示大图功能
